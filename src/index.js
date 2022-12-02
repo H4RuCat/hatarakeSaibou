@@ -8,33 +8,19 @@ const client = new Client({intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_M
 client.once('ready', async () => { 
 	console.log('起動完了'); 
 
+    let taskManagement = [''];
+
     const data = [
         { 
             name: "task",
-            description: "タスク管理(仮)",
-            options: [
-                {
-                    type: "STRING",
-                    name: "add",
-                    description: "さあ、タスクを追加するんだ！",
-                    options: [{
-                       type: "add",
-                       name: "add",
-                       description: "addやで"
-                    }],
-                },
-                {
-                    type: "STRING",
-                    name: "remove",
-                    description: "タスクから逃げるな、卑怯者ｫｯｯー－！！！！",
-                    options: [{
-                        type: "remove",
-                        name: "remove",
-                        description: "removeやで"
-                    }],
-                }
-            ]
-        },
+            description: "taskを管理！",
+            options: [{
+                type: "STRING",
+                name: "add",
+                description: "タスクを追加しよう！",
+                required: true,
+            }],
+        }
     ];
 
     await client.application.commands.set(data, '974108990751506432');
@@ -47,6 +33,14 @@ client.on("interactionCreate", async (interaction) => {
     }
   
     if(interaction.commandName === 'task') {
+
+        const taskOption = interaction.options.getString('option')
+
+        if(taskOption == 'add') {
+
+            interaction.reply( taskManagement + '追加しました');
+        
+        }
 
     }
  });
