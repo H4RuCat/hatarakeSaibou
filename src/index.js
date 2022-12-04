@@ -1,13 +1,14 @@
 require('dotenv').config();
 
 const { Client, Intents } = require('discord.js');
+const { off } = require('process');
 
 const client = new Client({intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES]});
 
 var userTaskNumber = 1;
 
-let taskManagement = [];
-let userTask = [];
+let taskManagement = ['interaction.user.idたち: '];
+let userTask = [['**現在の貴方のタスク:** ']];
 
 
 client.once('ready', async () => { 
@@ -27,6 +28,12 @@ client.once('ready', async () => {
         { 
             name: "taskremove",
             description: "taskを削除する",
+            options: [{
+                type: 'STRING',
+                name: 'tasknumber',
+                description: 'タスク番号を指定しやがれください。',
+                require: true,
+            }],
         },
         {
             name: "tasklist",
@@ -34,7 +41,11 @@ client.once('ready', async () => {
         },
         {
             name: "newtask",
-            description: "新しいタスクリストを作成"
+            description: "新しいタスクリストを作成",
+        },
+        {
+            name: "debug_newtask_test",
+            description: "でばっぐ",
         },
     ];
 
@@ -59,18 +70,25 @@ client.on("interactionCreate", async (interaction) => {
 
                 const taskOption = interaction.options.get("task");
 
-                totalTaskNumber = userTaskNumber++
+                    if(taskOption == null ) { 
+                    
+                        interaction.reply('空白のタスクは存在しませんよ？')
+                    
+                        return;
+                    }
 
-                userTask.push([ '\n**   ▸ ' + taskOption.value + '**     `TaskNo.' + totalTaskNumber + '`'])
+                    totalTaskNumber = userTaskNumber++
 
-                console.log(userTask)
+                    userTask.push([ '\n**   ▸ ' + taskOption.value + '**     `TaskNo.' + totalTaskNumber + '`'])
 
-                interaction.reply( '> **タスク**: ' + taskOption.value + ' を追加しました');
+                    console.log(userTask)
 
-                return;
+                    interaction.reply( '> **タスク**: ' + taskOption.value + ' を追加しました');
+
+                    return;
             } else if(taskNumberSeek === 100) {
 
-                console.log('taskNumber見つからなかった！この人taskList登録してないで！')
+                console.log('taskNumber見つからなかったわ！この人taskList登録してないで！')
                 interaction.reply( 'taskListが登録されていません。`/newtask`でlistに登録してください。' )
 
                 return;
@@ -81,16 +99,30 @@ client.on("interactionCreate", async (interaction) => {
     };
     if(interaction.commandName === 'tasklist') {
 
-        if(taskManagement.length == 0) {
-            interaction.reply( "現在請け負っているタスクは存在しません" );
-        } else {
-            interaction.reply( "> 現在の貴方のタスク: " + userTask )
-        }
+        for(let taskNumber = 1; taskNumber < 101; taskNumber++) {
 
+            console.log('登録してるか検索中や！: ' + taskNumber)
+
+            if(taskManagement[taskNumber] == interaction.user.id) {
+
+                console.log('みつかったで！')
+
+                interaction.reply( '> ' + userTask );
+
+                return;
+
+            } else if(taskNumber === 100) {
+
+                interaction.reply( "現在請け負っているタスクは存在しません" );
+
+                console.log('みつからんかったわ...')
+
+            } 
+        }
     };
     if(interaction.commandName === 'newtask') {
 
-        for( let taskNumber = 1; taskNumber < 101; taskNumber++) {
+        for(let taskNumber = 1; taskNumber < 101; taskNumber++) {
 
             console.log( 'list探してるで！: ' + taskNumber)
 
@@ -107,15 +139,21 @@ client.on("interactionCreate", async (interaction) => {
 
                 taskManagement.push(interaction.user.id)
 
-                for( let taskListNumber = 1; taskListNumber < 100; taskListNumber++) {
+                for( let taskNumber = 0; taskNumber < 100; taskNumber++) {
 
-                    console.log( '現在: ' + taskListNumber)
+                    console.log( '中身: ' + taskManagement[taskNumber] )
 
-                    if(taskManagement[taskListNumber] == null) {
+                    console.log( '現在: ' + taskNumber)
 
-                        console.log(taskListNumber + 'にtasklistを登録！ | ' + taskManagement[taskListNumber])
+                    if(taskManagement[taskNumber] == null) {
 
-                        await interaction.reply('タスクリストを登録しました **taskNumber: ' + taskListNumber + '**')
+                        console.log(taskNumber + 'にtasklistを登録！ | ' + taskManagement)
+
+                        var taskNo = taskNumber - 1;
+
+                        console.log( 'taskNo: ' + taskNo )
+
+                        interaction.reply('タスクリストを登録しました **taskNumber: ' + taskNo + '**')
 
                         console.log(' ～終～')
                         return;
@@ -126,6 +164,35 @@ client.on("interactionCreate", async (interaction) => {
         } 
 
         return;
+    }
+    if(interaction.commandName === 'taskremove') {
+
+        const removeNumber = interaction.options.get("tasknumber");
+
+        console.log(removeNumber.value)
+
+        if(!isNaN(removeNumber.value) && userTask.length >= removeNumber.value && userTask[removeNumber.value] != '削除済' && removeNumber.value != 0) {
+
+            userTask[removeNumber.value] = '\n   **▸ 削除済 ** `TaskNo.' + removeNumber.value + '`';
+
+            interaction.reply('`TaskNo.' + removeNumber.value + '`を削除しました')
+
+        } else if(userTask.length <= removeNumber.value) {
+
+            interaction.reply('存在しないTaskNoです。')
+
+        }
+    }
+    if(interaction.commandName === 'debug_newtask_test') {
+
+        console.log('グロい中身')
+        console.log( '0: ' + taskManagement[0] )
+        console.log( '1: ' + taskManagement[1] )
+        console.log( '2: ' + taskManagement[2] )
+        console.log( '3: ' + taskManagement[3] )
+        console.log( '4: ' + taskManagement[4] )
+        console.log('----------------------')
+
     }
  });
 
