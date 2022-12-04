@@ -19,6 +19,7 @@ let taskManagement12 = [];
 
 
 
+
 client.once('ready', async () => { 
 	console.log('起動完了'); 
 
