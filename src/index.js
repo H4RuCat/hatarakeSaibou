@@ -4,21 +4,8 @@ const { Client, Intents, SlashCommandBuilder } = require('discord.js');
 
 const client = new Client({intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES]});
 
-let taskManagement01 = [];
-let taskManagement02 = [];
-let taskManagement03 = [];
-let taskManagement04 = [];
-let taskManagement05 = [];
-let taskManagement06 = [];
-let taskManagement07 = [];
-let taskManagement08 = [];
-let taskManagement09 = [];
-let taskManagement10 = [];
-let taskManagement11 = [];
-let taskManagement12 = [];
-
-
-
+let taskManagement = [];
+const taskNumber = 0;
 
 client.once('ready', async () => { 
 	console.log('起動完了'); 
@@ -56,21 +43,26 @@ client.on("interactionCreate", async (interaction) => {
     if(!interaction.isCommand()) {
         return;
     }
-  
+
     if(interaction.commandName === 'taskadd') {
 
-        if(taskManagement01[0] === interaction.user.id) {
+        if(taskManagement[0] = interaction.user.id) {
 
-        interaction.reply( '貴方にはtaskListが登録されていません。`/newtask`でtaskListを登録してください。' )
+            console.log(taskManagement)
 
-        } 
+            const taskOption = interaction.options.get("task");
+            taskManagement.push([taskOption.value, taskManagement.length])
+    
+            interaction.reply( '> **タスク**: ' + taskOption.value + ' を追加しました');
+    
+            return;
 
-        const taskOption = interaction.options.get("task");
-        taskManagement.push([taskOption.value, taskManagement01.length])
+        } else {
 
-        interaction.reply( '> **タスク**: ' + taskOption.value + ' を追加しました');
+            interaction.reply( '貴方にはtaskListが登録されていません。`/newtask`でlistに登録してください。' )
 
-        return;
+            return;
+        }
     }
     if(interaction.commandName === 'tasklist') {
 
@@ -80,6 +72,37 @@ client.on("interactionCreate", async (interaction) => {
             interaction.reply( "現在の貴方のタスク: " + taskManagement )
         }
 
+    };
+    if(interaction.commandName === 'newtask') {
+
+        for( let taskNumber = 0; taskNumber < 100; taskNumber++) {
+
+            if(taskManagement[taskNumber] = interaction.user.id) {
+
+                console.log(taskManagement[taskNumber])
+                console.log(taskManagement[0] + " | " + taskManagement[1] + " | " + taskManagement[2])
+                interaction.reply('貴方はすでに登録されています')
+
+                return;
+
+            } else if(taskNumber = 100) {
+
+                taskManagement.push(interaction.user.id)
+
+                for( let taskListNumber = 0; taskListNumber < 100; taskListNumber++) {
+
+                    if(taskManagement[taskListNumber] = interaction.user.id) {
+
+                        await interaction.reply('タスクリストを登録しました **taskNumber: ' + taskListNumber + '**')
+
+                        return;
+                    }
+                }
+            }
+
+        } 
+
+        return;
     }
  });
 
