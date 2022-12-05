@@ -40,11 +40,11 @@ client.once('ready', async () => {
             description: "現在のtaskを表示",
         },
         {
-            name: "newtask",
+            name: "register",
             description: "新しいタスクリストを作成",
         },
         {
-            name: "debug_newtask_test",
+            name: "debug_register_test",
             description: "でばっぐ",
         },
     ];
@@ -60,13 +60,13 @@ client.on("interactionCreate", async (interaction) => {
 
     if(interaction.commandName === 'taskadd') {
 
-        for( let taskNumberSeek = 1; taskNumberSeek < 101; taskNumberSeek++) {
+        for( let taskNumber = 1; taskNumber < 101; taskNumber++) {
 
-            console.log('taskNumberを探しとるで！' + taskNumberSeek)
+            console.log('taskNumberを探しとるで！' + taskNumber)
 
-            if(taskManagement[taskNumberSeek] == interaction.user.id) {
+            if(taskManagement[taskNumber] == interaction.user.id) {
 
-                console.log('command実行者のtaskNumber発見やで！task登録可能や！: ' + taskNumberSeek )
+                console.log('command実行者のtaskNumber発見やで！task登録可能や！: ' + taskNumber )
 
                 const taskOption = interaction.options.get("task");
 
@@ -86,12 +86,12 @@ client.on("interactionCreate", async (interaction) => {
                     interaction.reply( '> **タスク**: ' + taskOption.value + ' を追加しました');
 
                     return;
-            } else if(taskNumberSeek === 100) {
+
+            } else if(taskNumber === 100) {
 
                 console.log('taskNumber見つからなかったわ！この人taskList登録してないで！')
-                interaction.reply( 'taskListが登録されていません。`/newtask`でlistに登録してください。' )
+                interaction.reply( 'taskListが登録されていません。`/register`でlistに登録してください。' )
 
-                return;
             }
             
         }
@@ -120,7 +120,7 @@ client.on("interactionCreate", async (interaction) => {
             } 
         }
     };
-    if(interaction.commandName === 'newtask') {
+    if(interaction.commandName === 'register') {
 
         for(let taskNumber = 1; taskNumber < 101; taskNumber++) {
 
@@ -183,7 +183,7 @@ client.on("interactionCreate", async (interaction) => {
 
         }
     }
-    if(interaction.commandName === 'debug_newtask_test') {
+    if(interaction.commandName === 'debug_register_test') {
 
         console.log('グロい中身')
         console.log( '0: ' + taskManagement[0] )
@@ -218,7 +218,7 @@ client.login(token);
 
     備忘録:
     - taskManagement = listに登録しているUserのid
-    - taskNumerSeek, taskNumber, taskListNumber = 配列(taskManagement)を一つずつ参照して、interaction.user.idと一致する要素が存在するか確認
+    - taskNumber = 配列(taskManagement)を一つずつ参照して、interaction.user.idと一致する要素が存在するか確認
     - userTaskNumber = これまで登録されてきたtaskの数(taskナンバー (主にtaskの削除時に使用...予定。)
     - userTask = 登録されたタスクの詳細(interaction.replyでそのまま出力すればOKになってる...けど変えた方が良くね?() )
 */
