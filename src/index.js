@@ -1,7 +1,8 @@
 require('dotenv').config();
 
+const { ApplicationCommandPermissionType } = require('discord-api-types/v9');
 const { Client, Intents } = require('discord.js');
-const { off } = require('process');
+var fs = require('fs');
 
 const client = new Client({intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES]});
 
@@ -41,7 +42,7 @@ client.once('ready', async () => {
         },
         {
             name: "register",
-            description: "新しいタスクリストを作成",
+            description: "タスクリストに登録",
         },
         {
             name: "debug_register_test",
@@ -107,6 +108,14 @@ client.on("interactionCreate", async (interaction) => {
 
                 console.log('みつかったで！')
 
+                embeds: [{
+                    title: '埋め込みのタイトル',
+                    url: 'https://google.com',
+                    fields: [{ name: 'name', value: 'value' }],
+                    color: 4303284,
+                    timestamp: new Date()
+                }]
+
                 interaction.reply( '> ' + userTask );
 
                 return;
@@ -153,8 +162,23 @@ client.on("interactionCreate", async (interaction) => {
 
                         console.log( 'taskNo: ' + taskNo )
 
+                        var db = fs.readFileSync('./registerlist.json', 'utf-8');
+                        var read_db = JSON.parse(db);
+
+                        console.log(read_db)
+
+                        var data = 
+                            {
+                                userId: interaction.user.id,
+                                taskNo: taskNo,
+                            }
+
                         interaction.reply('タスクリストを登録しました **taskNumber: ' + taskNo + '**')
 
+                        fs.writeFile('./registerlist.json', JSON.stringify(data, null, '    '), function(err, result) {
+                            if(err) console.log('error', err);
+                        });
+                        
                         console.log(' ～終～')
                         return;
                     }
