@@ -5,6 +5,8 @@ var fs = require('fs');
 
 const client = new Client({intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES]});
 
+const task = []
+
 client.once('ready', async () => { 
 	console.log('起動完了'); 
 
@@ -17,12 +19,20 @@ client.once('ready', async () => {
                     type: "SUB_COMMAND",
                     name: "add",
                     description: "新規タスクを追加 / adding tasks",
-                    options: [{
+                    options: [
+                    {
                         type: "STRING",
                         name: "task",
                         description: "追加したいtask / tasks to add",
                         required: true,
-                    }]
+                    },
+                    {
+                        type: "USER",
+                        name: "user",
+                        description: "タスクを追加したいユーザー / えいご",
+                        required: true,
+                    }
+                    ]
                 },
                 {
                     type: "SUB_COMMAND",
@@ -45,12 +55,20 @@ client.once('ready', async () => {
                     type: "SUB_COMMAND",
                     name: "edit",
                     description: "editing tasks",
-                    options: [{
+                    options: [
+                    {
                         type: "INTEGER",
                         name: "task_number",
                         description: "編集したいタスクの番号を指定 / specify the number of the task you want to edit",
                         required: true,
-                    }],
+                    },
+                    {
+                        type: "STRING",
+                        name: "task",
+                        description: "変更後のタスクを指定 / えいご",
+                        required: true,
+                    }
+                    ],
                 },
             ],
         },
@@ -67,6 +85,20 @@ client.once('ready', async () => {
         {
             name: "request",
             description: "指定したuserにタスクを依頼する / request task",
+            options: [
+            {
+                type: "USER",
+                name: "user",
+                description: "依頼したいユーザーを指定 / えいご",
+                required: true,
+            },
+            {
+                type: "STRING",
+                name: "task",
+                description: "依頼したいタスクを指定",
+                required: true,
+            }
+            ]
         }
     ];
 
@@ -83,19 +115,45 @@ client.on("interactionCreate", async (interaction) => {
 
         if (interaction.options.getSubcommand() === 'add') {
 
+            const user = interaction.options.getUser('user');
+            const tasks = interaction.options.getString('task');
 
+            if (!task[user.id]) { task[user.id] = [] }
+
+            task[user.id].push(interaction.options.getString('task'))
+
+            interaction.reply( '||  || ' + user.username + 'に タスク: `' + tasks + '` を追加')
 
             return;
         };
         if (interaction.options.getSubcommand() === 'remove') {
 
-            
+            const taskNo = interaction.options.getInteger('task_number');
+            const user = interaction.options.getUser('user');
+
+            console.log(task[interaction.user.id])
+
+            if (!task[user.id]) { interaction.reply('タスクリストが存在しません'); return; }
+            if (task[user.id].length == 0 ) { interaction.reply('タスクが存在しません'); return; }
+            if (!task[user.id][taskNo]) { interaction.reply('その番号のタスクは存在しません'); return; }
+
+            interaction.reply(taskNo + '番のタスク(`' +  task[user.id][taskNo] + '`)を削除しました')
+
+            task[user.id].splice[taskNo]
 
             return;
         };
         if (interaction.options.getSubcommand() === 'edit') {
             
+            const taskNo = interaction.options.getInteger('task_number');
+            const tasks = interaction.options.getString('task')
 
+            if (!task[interaction.user.id]) { interaction.reply('タスクリストが存在しません'); return; }
+            if (task[interaction.user.id].length == 0 ) { interaction.reply('タスクが存在しません'); return; }
+            if (!task[interaction.user.id][taskNo]) { interaction.reply('その番号のタスクは存在しません'); return; }
+
+            interaction.reply(taskNo + '番のタスク(`' + task[interaction.user.id][taskNo] + '`)を(`' + tasks + '`)にしました')
+            task[interaction.user.id][taskNo] = tasks;
 
             return;
         };
@@ -103,8 +161,16 @@ client.on("interactionCreate", async (interaction) => {
     };
     if(interaction.commandName === 'tasklist') {
 
+        const user = interaction.options.getUser('user');
+
+        if (!task[user.id]) { interaction.reply('タスクが存在しません。'); return; }
+
+        interaction.reply(`||  || ${user.username}` + 'のタスク: `' + task[user.id] + '`')
+
     };
     if(interaction.commandName === 'request') {
+
+
 
     };
 });
