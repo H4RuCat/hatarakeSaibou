@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const { Client, Intents } = require('discord.js');
+const { Client, Intents, MessageEmbed } = require('discord.js');
 var fs = require('fs');
 
 const client = new Client({intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES]});
@@ -75,12 +75,20 @@ client.once('ready', async () => {
         {
             name: "tasklist",
             description: "指定したユーザーのタスクリストを表示 / show tasklist",
-            options: [{
+            options: [
+            {
                 type: "USER",
                 name: "user",
                 description: "タスクリストを表示したいユーザーを指定 / specify the users for whom you want to display the task list",
                 required: true,
-            }]
+            },
+            {
+                type: "INTEGER",
+                name: "page",
+                description: "表示したいページを指定 / えいご",
+                required: true,
+            },
+            ]
         },
         {
             name: "request",
@@ -118,7 +126,7 @@ client.on("interactionCreate", async (interaction) => {
             const user = interaction.options.getUser('user');
             const tasks = interaction.options.getString('task');
 
-            if (!task[user.id]) { task[user.id] = [] }
+            if (!task[user.id]) { task[user.id] = [user.id] }
 
             task[user.id].push(interaction.options.getString('task'))
 
@@ -162,10 +170,31 @@ client.on("interactionCreate", async (interaction) => {
     if(interaction.commandName === 'tasklist') {
 
         const user = interaction.options.getUser('user');
+        const pageNumber = interaction.options.getInteger('page');
 
         if (!task[user.id]) { interaction.reply('タスクが存在しません。'); return; }
 
-        interaction.reply(`||  || ${user.username}` + 'のタスク: `' + task[user.id] + '`')
+        const entriesPerPage = 10
+        const page = Math.max(1, pageNumber)
+        const maxPage = Math.floor(task[user.id].length / entriesPerPage)
+        const entriesToShow = []
+
+        for (let i = page * entriesPerPage; i < Math.min(task[user.id].length, (page + 1) * entriesPerPage); i++) {
+            entriesToShow.push(task[user.id][i])
+        }
+
+        console.log(page * entriesPerPage)
+        console.log(Math.min(task[user.id].length, (page + 1) * entriesPerPage))
+
+
+        console.log(entriesToShow)
+
+        const embed = new MessageEmbed()
+       .setTitle('taskList')
+       .setDescription(`${entriesToShow}`)
+       .setColor('#FF0000')
+
+        interaction.reply({ embeds: [embed] })
 
     };
     if(interaction.commandName === 'request') {
